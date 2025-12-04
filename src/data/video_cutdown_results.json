@@ -1,0 +1,747 @@
+[
+  {
+    "video_cutdown_result": {
+      "project_name": "iPhone 15 Portrait Mode Ad Cutdown",
+      "total_duration_sec": 16.7,
+      "source_files": [
+        {
+          "source_id": 0,
+          "asset_id": "00669759-d3f6-41c0-856c-f7868f4bfabf",
+          "url": "https://stg.trypncl.com/stg/uploads/22269/3739ddbb-2520-480c-89b8-92574db8e4af.mp4",
+          "duration_sec": 140.066,
+          "fps": 30.0,
+          "duration_ms": 108133.33333333334,
+          "dimension": {
+            "width": 1920,
+            "height": 1080
+          }
+        }
+      ],
+      "segments": [
+        {
+          "scene_id": 0,
+          "source_id": 0,
+          "purpose": "Hook",
+          "timecode": "00:02.000-00:04.500",
+          "start_ms": 2000,
+          "end_ms": 4500,
+          "summary": "Close-up on a smartphone displaying a black and white portrait photo.",
+          "duration_sec": 2.5,
+          "muted": true
+        },
+        {
+          "scene_id": 1,
+          "source_id": 0,
+          "purpose": "Introduce Conflict",
+          "timecode": "00:04.800-00:08.500",
+          "start_ms": 4800,
+          "end_ms": 8500,
+          "summary": "A woman asks a man for his opinion on the photo, which is for an album cover.",
+          "duration_sec": 3.7,
+          "muted": false
+        },
+        {
+          "scene_id": 2,
+          "source_id": 0,
+          "purpose": "Build a narrative",
+          "timecode": "00:44.500-00:48.000",
+          "start_ms": 44500,
+          "end_ms": 48000,
+          "summary": "The man and woman discuss the mysterious quality of the photograph.",
+          "duration_sec": 3.5,
+          "muted": false
+        },
+        {
+          "scene_id": 3,
+          "source_id": 0,
+          "purpose": "Climax",
+          "timecode": "01:28.000-01:32.000",
+          "start_ms": 88000,
+          "end_ms": 92000,
+          "summary": "A third person looks at the photo and says, 'Yeah, I like that. Feels iconic.'",
+          "duration_sec": 4.0,
+          "muted": false
+        },
+        {
+          "scene_id": 4,
+          "source_id": 0,
+          "purpose": "Branding",
+          "timecode": "01:35.500-01:38.500",
+          "start_ms": 95500,
+          "end_ms": 98500,
+          "summary": "The screen displays the text 'Turn your photos into portraits. iPhone 15'.",
+          "duration_sec": 3.0,
+          "muted": true
+        }
+      ],
+      "cutdown_uuid": "9b952aea-7b0e-4d00-987d-b137e5a23d51",
+      "client_id": 22269,
+      "user_id": "27610",
+      "chat_id": "574e5967-3052-4615-ad19-afab32e43512",
+      "total_scenes": 5
+    }
+  },
+  {
+    "video_cutdown_result": {
+      "project_name": "Skincare Routine Highlights",
+      "total_duration_sec": 5.0,
+      "source_files": [
+        {
+          "source_id": 0,
+          "asset_id": "c51d34f1-ab1c-4591-bcd0-9f31b545e815",
+          "url": "https://stg.trypncl.com/stg/uploads/22471/c8daa2c9-602a-410e-a75f-5c3b2ed9435b.mp4",
+          "duration_sec": 11.5,
+          "fps": 30.0,
+          "duration_ms": 12000.0,
+          "dimension": {
+            "width": 1280,
+            "height": 720
+          }
+        }
+      ],
+      "segments": [
+        {
+          "scene_id": 0,
+          "source_id": 0,
+          "purpose": "Hook",
+          "timecode": "00:00.000-00:01.200",
+          "start_ms": 0,
+          "end_ms": 1200,
+          "summary": "Close-up of a foaming cleanser being applied to skin, highlighting the product's texture.",
+          "duration_sec": 1.2,
+          "muted": false
+        },
+        {
+          "scene_id": 1,
+          "source_id": 0,
+          "purpose": "Product in Use",
+          "timecode": "00:01.200-00:02.400",
+          "start_ms": 1200,
+          "end_ms": 2400,
+          "summary": "A young boy smiling peacefully while washing his face with the foaming cleanser.",
+          "duration_sec": 1.2,
+          "muted": false
+        },
+        {
+          "scene_id": 2,
+          "source_id": 0,
+          "purpose": "Introduce Second Product",
+          "timecode": "00:03.000-00:04.000",
+          "start_ms": 3000,
+          "end_ms": 4000,
+          "summary": "A macro shot of a dollop of clear hydrating gel, showcasing its purity and texture.",
+          "duration_sec": 1.0,
+          "muted": false
+        },
+        {
+          "scene_id": 3,
+          "source_id": 0,
+          "purpose": "Brand Moment",
+          "timecode": "00:07.000-00:08.600",
+          "start_ms": 7000,
+          "end_ms": 8600,
+          "summary": "Three happy, diverse youths with fresh skin smile together, representing the positive results.",
+          "duration_sec": 1.6,
+          "muted": false
+        }
+      ],
+      "cutdown_uuid": "3e25cf04-e915-4493-ab60-c76b25728f20",
+      "client_id": 22471,
+      "user_id": "28071",
+      "chat_id": "b3258f58-ad01-4c88-8572-4bd507722541",
+      "total_scenes": 4
+    }
+  },
+  {
+    "video_cutdown_result": {
+      "project_name": "Zephyr Journey",
+      "total_duration_sec": 15.0,
+      "source_files": [
+        {
+          "source_id": 0,
+          "asset_id": "e09b42ad-e1d6-47b6-b294-a84f37e221b9",
+          "url": "https://stg.trypncl.com/38372/9d697792-ab14-4354-8406-57d668cbee5a.mp4",
+          "duration_sec": 11.011,
+          "fps": 30,
+          "duration_ms": 11433.333333333334,
+          "dimension": {
+            "width": 2048,
+            "height": 1080
+          }
+        },
+        {
+          "source_id": 1,
+          "asset_id": "795abd2d-5672-488c-ab2e-a6877929b04c",
+          "url": "https://stg.trypncl.com/38372/5e745610-14ee-46c6-9a92-86cf2eb0129b.mp4",
+          "duration_sec": 37.037,
+          "fps": 30,
+          "duration_ms": 37833.333333333336,
+          "dimension": {
+            "width": 1922,
+            "height": 1080
+          }
+        },
+        {
+          "source_id": 2,
+          "asset_id": "a7d21747-b025-4afe-8630-78162d3e7f21",
+          "url": "https://stg.trypncl.com/38372/0f7f549f-ecd5-464f-a454-165824cc4502.mp4",
+          "duration_sec": 29.829,
+          "fps": 30,
+          "duration_ms": 29533.333333333336,
+          "dimension": {
+            "width": 1920,
+            "height": 1080
+          }
+        },
+        {
+          "source_id": 3,
+          "asset_id": "a87640ec-32ef-4488-8473-520e8ed1aae2",
+          "url": "https://stg.trypncl.com/38372/02bac8a3-317e-4125-a0d6-052b1bcd64cb.mp4",
+          "duration_sec": 11.011,
+          "fps": 30,
+          "duration_ms": 11700,
+          "dimension": {
+            "width": 1920,
+            "height": 1080
+          }
+        },
+        {
+          "source_id": 4,
+          "asset_id": "bbea3b81-290f-43df-a452-8be6d4c3fbaf",
+          "url": "https://stg.trypncl.com/38372/6a21e76d-69b7-43e3-a747-edf5cc032bf4.mp4",
+          "duration_sec": 40.0,
+          "fps": 30,
+          "duration_ms": 40366.666666666664,
+          "dimension": {
+            "width": 1920,
+            "height": 1080
+          }
+        }
+      ],
+      "segments": [
+        {
+          "scene_id": 0,
+          "source_id": 3,
+          "purpose": "Hook",
+          "timecode": "00:01.000-00:04.500",
+          "start_ms": 1000,
+          "end_ms": 4500,
+          "summary": "Shows a businessman looking stressed and gesturing in his car.",
+          "duration_sec": 3.5,
+          "muted": true
+        },
+        {
+          "scene_id": 1,
+          "source_id": 1,
+          "purpose": "Transition",
+          "timecode": "00:26.000-00:28.500",
+          "start_ms": 26000,
+          "end_ms": 28500,
+          "summary": "Fast-paced POV driving through city streets, moving away from the dense core.",
+          "duration_sec": 2.5,
+          "muted": false
+        },
+        {
+          "scene_id": 2,
+          "source_id": 2,
+          "purpose": "Journey",
+          "timecode": "00:25.500-00:29.000",
+          "start_ms": 25500,
+          "end_ms": 29000,
+          "summary": "Hyperlapse shot entering and passing through a brightly lit tunnel, symbolizing a transition.",
+          "duration_sec": 3.5,
+          "muted": true
+        },
+        {
+          "scene_id": 3,
+          "source_id": 0,
+          "purpose": "Climax",
+          "timecode": "00:02.000-00:07.500",
+          "start_ms": 2000,
+          "end_ms": 7500,
+          "summary": "The journey concludes with a calm, steady drive through a serene, rainy forest road.",
+          "duration_sec": 5.5,
+          "muted": true
+        }
+      ],
+      "cutdown_uuid": "2d3db43e-2466-4011-9118-df01d3c6aea1",
+      "client_id": 22091,
+      "user_id": "27610",
+      "chat_id": "590ad209-bf1f-497b-a659-1c497dc7ea6d",
+      "total_scenes": 4
+    }
+  },
+  {
+    "video_cutdown_result": {
+      "project_name": "Zephyr Interior Experience",
+      "total_duration_sec": 15.0,
+      "source_files": [
+        {
+          "source_id": 0,
+          "asset_id": "e09b42ad-e1d6-47b6-b294-a84f37e221b9",
+          "url": "https://stg.trypncl.com/38372/9d697792-ab14-4354-8406-57d668cbee5a.mp4",
+          "duration_sec": 11.011,
+          "fps": 30,
+          "duration_ms": 11433.333333333334,
+          "dimension": {
+            "width": 2048,
+            "height": 1080
+          }
+        },
+        {
+          "source_id": 1,
+          "asset_id": "795abd2d-5672-488c-ab2e-a6877929b04c",
+          "url": "https://stg.trypncl.com/38372/5e745610-14ee-46c6-9a92-86cf2eb0129b.mp4",
+          "duration_sec": 37.037,
+          "fps": 30,
+          "duration_ms": 37833.333333333336,
+          "dimension": {
+            "width": 1922,
+            "height": 1080
+          }
+        },
+        {
+          "source_id": 2,
+          "asset_id": "a7d21747-b025-4afe-8630-78162d3e7f21",
+          "url": "https://stg.trypncl.com/38372/0f7f549f-ecd5-464f-a454-165824cc4502.mp4",
+          "duration_sec": 29.829,
+          "fps": 30,
+          "duration_ms": 29533.333333333336,
+          "dimension": {
+            "width": 1920,
+            "height": 1080
+          }
+        },
+        {
+          "source_id": 3,
+          "asset_id": "a87640ec-32ef-4488-8473-520e8ed1aae2",
+          "url": "https://stg.trypncl.com/38372/02bac8a3-317e-4125-a0d6-052b1bcd64cb.mp4",
+          "duration_sec": 11.011,
+          "fps": 30,
+          "duration_ms": 11700,
+          "dimension": {
+            "width": 1920,
+            "height": 1080
+          }
+        },
+        {
+          "source_id": 4,
+          "asset_id": "bbea3b81-290f-43df-a452-8be6d4c3fbaf",
+          "url": "https://stg.trypncl.com/38372/6a21e76d-69b7-43e3-a747-edf5cc032bf4.mp4",
+          "duration_sec": 40.0,
+          "fps": 30,
+          "duration_ms": 40366.666666666664,
+          "dimension": {
+            "width": 1920,
+            "height": 1080
+          }
+        }
+      ],
+      "segments": [
+        {
+          "scene_id": 0,
+          "source_id": 3,
+          "purpose": "The Driver",
+          "timecode": "00:02.000-00:06.000",
+          "start_ms": 2000,
+          "end_ms": 6000,
+          "summary": "Close on the driver's focused expression, hands on the wheel.",
+          "duration_sec": 4.0,
+          "muted": true
+        },
+        {
+          "scene_id": 1,
+          "source_id": 0,
+          "purpose": "The Dashboard",
+          "timecode": "00:01.000-00:04.500",
+          "start_ms": 1000,
+          "end_ms": 4500,
+          "summary": "Shot focusing on the glowing dashboard, speedometer, and hand on the steering wheel.",
+          "duration_sec": 3.5,
+          "muted": true
+        },
+        {
+          "scene_id": 2,
+          "source_id": 4,
+          "purpose": "The View",
+          "timecode": "00:03.000-00:06.500",
+          "start_ms": 3000,
+          "end_ms": 6500,
+          "summary": "View from the dashboard as snow falls, showing the car handling the conditions.",
+          "duration_sec": 3.5,
+          "muted": true
+        },
+        {
+          "scene_id": 3,
+          "source_id": 2,
+          "purpose": "The Experience",
+          "timecode": "00:25.000-00:29.000",
+          "start_ms": 25000,
+          "end_ms": 29000,
+          "summary": "Immersive shot from the dashboard looking out as the car speeds through a tunnel.",
+          "duration_sec": 4.0,
+          "muted": true
+        }
+      ],
+      "cutdown_uuid": "ec6d65c2-0d08-4eec-8710-c2847a86e238",
+      "client_id": 22091,
+      "user_id": "27610",
+      "chat_id": "590ad209-bf1f-497b-a659-1c497dc7ea6d",
+      "total_scenes": 4
+    }
+  },
+  {
+    "video_cutdown_result": {
+      "project_name": "Steering Wheel Focus",
+      "total_duration_sec": 20.0,
+      "source_files": [
+        {
+          "source_id": 0,
+          "asset_id": "e09b42ad-e1d6-47b6-b294-a84f37e221b9",
+          "url": "https://stg.trypncl.com/38372/9d697792-ab14-4354-8406-57d668cbee5a.mp4",
+          "duration_sec": 11.011,
+          "fps": 30,
+          "duration_ms": 11433.333333333334,
+          "dimension": {
+            "width": 2048,
+            "height": 1080
+          }
+        },
+        {
+          "source_id": 1,
+          "asset_id": "795abd2d-5672-488c-ab2e-a6877929b04c",
+          "url": "https://stg.trypncl.com/38372/5e745610-14ee-46c6-9a92-86cf2eb0129b.mp4",
+          "duration_sec": 37.037,
+          "fps": 30,
+          "duration_ms": 37833.333333333336,
+          "dimension": {
+            "width": 1922,
+            "height": 1080
+          }
+        },
+        {
+          "source_id": 2,
+          "asset_id": "a7d21747-b025-4afe-8630-78162d3e7f21",
+          "url": "https://stg.trypncl.com/38372/0f7f549f-ecd5-464f-a454-165824cc4502.mp4",
+          "duration_sec": 29.829,
+          "fps": 30,
+          "duration_ms": 29533.333333333336,
+          "dimension": {
+            "width": 1920,
+            "height": 1080
+          }
+        },
+        {
+          "source_id": 3,
+          "asset_id": "a87640ec-32ef-4488-8473-520e8ed1aae2",
+          "url": "https://stg.trypncl.com/38372/02bac8a3-317e-4125-a0d6-052b1bcd64cb.mp4",
+          "duration_sec": 11.011,
+          "fps": 30,
+          "duration_ms": 11700,
+          "dimension": {
+            "width": 1920,
+            "height": 1080
+          }
+        },
+        {
+          "source_id": 4,
+          "asset_id": "bbea3b81-290f-43df-a452-8be6d4c3fbaf",
+          "url": "https://stg.trypncl.com/38372/6a21e76d-69b7-43e3-a747-edf5cc032bf4.mp4",
+          "duration_sec": 40.0,
+          "fps": 30,
+          "duration_ms": 40366.666666666664,
+          "dimension": {
+            "width": 1920,
+            "height": 1080
+          }
+        }
+      ],
+      "segments": [
+        {
+          "scene_id": 0,
+          "source_id": 0,
+          "purpose": "Calm Control",
+          "timecode": "00:01.000-00:07.000",
+          "start_ms": 1000,
+          "end_ms": 7000,
+          "summary": "A steady shot of a hand calmly gripping the steering wheel on a peaceful country road.",
+          "duration_sec": 6.0,
+          "muted": true
+        },
+        {
+          "scene_id": 1,
+          "source_id": 3,
+          "purpose": "Focused Driver",
+          "timecode": "00:02.000-00:07.000",
+          "start_ms": 2000,
+          "end_ms": 7000,
+          "summary": "Cut to the driver, showing his focused expression and confident grip on the steering wheel.",
+          "duration_sec": 5.0,
+          "muted": true
+        },
+        {
+          "scene_id": 2,
+          "source_id": 0,
+          "purpose": "Active Steering",
+          "timecode": "00:07.000-00:11.000",
+          "start_ms": 7000,
+          "end_ms": 11000,
+          "summary": "Another POV shot, this time showing slight, deliberate steering adjustments.",
+          "duration_sec": 4.0,
+          "muted": true
+        },
+        {
+          "scene_id": 3,
+          "source_id": 3,
+          "purpose": "The Man in Command",
+          "timecode": "00:06.000-00:11.000",
+          "start_ms": 6000,
+          "end_ms": 11000,
+          "summary": "A final shot of the driver, reinforcing the theme of control and connection with the vehicle through the steering wheel.",
+          "duration_sec": 5.0,
+          "muted": true
+        }
+      ],
+      "cutdown_uuid": "fb080a40-f6d2-4dc2-b7f5-eaf4aee7e295",
+      "client_id": 22091,
+      "user_id": "27610",
+      "chat_id": "590ad209-bf1f-497b-a659-1c497dc7ea6d",
+      "total_scenes": 4
+    }
+  },
+  {
+    "video_cutdown_result": {
+      "project_name": "Michelob ULTRA 15s Cutdown",
+      "total_duration_sec": 15,
+      "source_files": [
+        {
+          "source_id": 0,
+          "asset_id": "350d06e2-4c21-4c80-b19c-209def74e2cc",
+          "url": "https://stg.trypncl.com/stg/uploads/22269/37dcffdc-19e5-40f2-bc6d-96e3b1bd80af.mp4",
+          "duration_sec": 61,
+          "fps": 30.0,
+          "duration_ms": 61400.0,
+          "dimension": {
+            "width": 1920,
+            "height": 1080
+          }
+        }
+      ],
+      "segments": [
+        {
+          "scene_id": 0,
+          "source_id": 0,
+          "purpose": "Hook",
+          "timecode": "00:04.800-00:06.500",
+          "start_ms": 4800,
+          "end_ms": 6500,
+          "summary": "Catherine O'Hara challenges a younger group to a game.",
+          "duration_sec": 1.7,
+          "muted": false
+        },
+        {
+          "scene_id": 1,
+          "source_id": 0,
+          "purpose": "Action",
+          "timecode": "00:15.500-00:19.500",
+          "start_ms": 15500,
+          "end_ms": 19500,
+          "summary": "An energetic montage of the paddleball match in action.",
+          "duration_sec": 4.0,
+          "muted": true
+        },
+        {
+          "scene_id": 2,
+          "source_id": 0,
+          "purpose": "Atmosphere",
+          "timecode": "00:33.000-00:35.500",
+          "start_ms": 33000,
+          "end_ms": 35500,
+          "summary": "Scenic wide shot of the paddleball court on the beach at sunset.",
+          "duration_sec": 2.5,
+          "muted": true
+        },
+        {
+          "scene_id": 3,
+          "source_id": 0,
+          "purpose": "Climax",
+          "timecode": "00:21.500-00:23.000",
+          "start_ms": 21500,
+          "end_ms": 23000,
+          "summary": "The winners celebrate their victory with a triumphant toast.",
+          "duration_sec": 1.5,
+          "muted": false
+        },
+        {
+          "scene_id": 4,
+          "source_id": 0,
+          "purpose": "Branding",
+          "timecode": "00:55.000-00:57.800",
+          "start_ms": 55000,
+          "end_ms": 57800,
+          "summary": "A perfect pour of Michelob ULTRA with the tagline 'Superior is worth playing for'.",
+          "duration_sec": 2.8,
+          "muted": false
+        },
+        {
+          "scene_id": 5,
+          "source_id": 0,
+          "purpose": "Logo",
+          "timecode": "00:58.500-01:01.000",
+          "start_ms": 58500,
+          "end_ms": 61000,
+          "summary": "Final shot of the celebrities enjoying their beer with the Michelob ULTRA logo.",
+          "duration_sec": 2.5,
+          "muted": false
+        }
+      ],
+      "cutdown_uuid": "64769b0e-f3e5-425a-89b4-e937b586fccf",
+      "client_id": 22269,
+      "user_id": "27610",
+      "chat_id": "26f57a3c-0181-4e33-a330-918954ba060d",
+      "total_scenes": 6
+    }
+  },
+  {
+    "video_cutdown_result": {
+      "project_name": "Doritos Barber Ad Cutdown",
+      "total_duration_sec": 15,
+      "source_files": [
+        {
+          "source_id": 0,
+          "asset_id": "99b4531b-34d6-42f2-afb6-bc4c08ac4852",
+          "url": "https://stg.trypncl.com/stg/uploads/22269/694536fc-0652-4938-82cc-9602b134304d.mp4",
+          "duration_sec": 31,
+          "fps": 30.0,
+          "duration_ms": 31133.333333333332,
+          "dimension": {
+            "width": 1920,
+            "height": 1080
+          }
+        }
+      ],
+      "segments": [
+        {
+          "scene_id": 0,
+          "source_id": 0,
+          "purpose": "Hook",
+          "timecode": "00:05.500-00:08.000",
+          "start_ms": 5500,
+          "end_ms": 8000,
+          "summary": "A man in a barber's chair confidently says, 'I feel godlike' as the barber prepares to cut his hair.",
+          "duration_sec": 2.5,
+          "muted": false
+        },
+        {
+          "scene_id": 1,
+          "source_id": 0,
+          "purpose": "Build-up",
+          "timecode": "00:11.500-00:15.000",
+          "start_ms": 11500,
+          "end_ms": 15000,
+          "summary": "The barber, with Dorito-dusted fingers, touches the man's forehead while bragging, 'I was like the black Fabio...'",
+          "duration_sec": 3.5,
+          "muted": false
+        },
+        {
+          "scene_id": 2,
+          "source_id": 0,
+          "purpose": "Climax",
+          "timecode": "00:16.000-00:19.000",
+          "start_ms": 16000,
+          "end_ms": 19000,
+          "summary": "The entire barbershop freezes, looking on in silent, slow-motion shock.",
+          "duration_sec": 3,
+          "muted": true
+        },
+        {
+          "scene_id": 3,
+          "source_id": 0,
+          "purpose": "Resolution",
+          "timecode": "00:25.000-00:28.000",
+          "start_ms": 25000,
+          "end_ms": 28000,
+          "summary": "Having fled the shop, the man angrily eats a Dorito chip outside.",
+          "duration_sec": 3,
+          "muted": false
+        },
+        {
+          "scene_id": 4,
+          "source_id": 0,
+          "purpose": "Branding",
+          "timecode": "00:28.000-00:31.000",
+          "start_ms": 28000,
+          "end_ms": 31000,
+          "summary": "The Doritos logo appears with the tagline 'FOR THE BOLD' and signature crunch sound.",
+          "duration_sec": 3,
+          "muted": false
+        }
+      ],
+      "cutdown_uuid": "77c65547-19a1-4a51-b22e-bdca991dd28f",
+      "client_id": 22269,
+      "user_id": "27610",
+      "chat_id": "e1e072fc-e644-4161-9767-2639a2070886",
+      "total_scenes": 5
+    }
+  },
+  {
+    "video_cutdown_result": {
+      "project_name": "iPhone 15 Cutdown",
+      "total_duration_sec": 15,
+      "source_files": [
+        {
+          "source_id": 0,
+          "asset_id": "00669759-d3f6-41c0-856c-f7868f4bfabf",
+          "url": "https://stg.trypncl.com/stg/uploads/22269/3739ddbb-2520-480c-89b8-92574db8e4af.mp4",
+          "duration_sec": 140.066,
+          "fps": 30.0,
+          "duration_ms": 108133.33333333334,
+          "dimension": {
+            "width": 1920,
+            "height": 1080
+          }
+        }
+      ],
+      "segments": [
+        {
+          "scene_id": 0,
+          "source_id": 0,
+          "purpose": "Hook with character dialogue",
+          "timecode": "00:04.000-00:08.000",
+          "start_ms": 4000,
+          "end_ms": 8000,
+          "summary": "A woman shows a man a photo on her phone and asks for his opinion on it as a cover.",
+          "duration_sec": 4.0,
+          "muted": false
+        },
+        {
+          "scene_id": 1,
+          "source_id": 0,
+          "purpose": "Climax with emotional beat",
+          "timecode": "00:38.000-00:46.000",
+          "start_ms": 38000,
+          "end_ms": 46000,
+          "summary": "A close-up of the portrait photo is shown while the woman describes its mysterious quality.",
+          "duration_sec": 8.0,
+          "muted": false
+        },
+        {
+          "scene_id": 2,
+          "source_id": 0,
+          "purpose": "Branding",
+          "timecode": "01:45.000-01:48.000",
+          "start_ms": 105000,
+          "end_ms": 108000,
+          "summary": "The screen displays the text 'Turn your photos into portraits' followed by 'iPhone 15'.",
+          "duration_sec": 3.0,
+          "muted": true
+        }
+      ],
+      "cutdown_uuid": "2909f1ad-785d-4a0c-846d-692c83533599",
+      "client_id": 22269,
+      "user_id": "27610",
+      "chat_id": "71040635-3658-40b9-b4c8-a26e995d0e84",
+      "total_scenes": 3
+    }
+  }
+]
