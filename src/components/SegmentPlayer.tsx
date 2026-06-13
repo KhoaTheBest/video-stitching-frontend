@@ -1,13 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { 
-  Input, 
-  Output, 
-  Conversion, 
-  UrlSource, 
-  BufferTarget, 
-  Mp4OutputFormat, 
-  ALL_FORMATS 
-} from 'mediabunny';
+import { FFmpeg } from '@ffmpeg/ffmpeg';
+import { fetchFile, toBlobURL } from '@ffmpeg/util';
 import type { Segment } from '../types';
 
 interface SegmentPlayerProps {
@@ -28,76 +21,78 @@ export function SegmentPlayer({ segment, sourceUrl, canProcess, onComplete }: Se
     if (!canProcess || completedRef.current) return;
 
     let mounted = true;
-    let conversionInstance: Conversion | null = null;
+    const ffmpeg = new FFmpeg();
 
     const processSegment = async () => {
-      // Prevent double processing
       if (processingRef.current) return;
       processingRef.current = true;
       setError(null);
       setProgress(0);
 
       try {
-        const input = new Input({
-          source: new UrlSource(sourceUrl),
-          formats: ALL_FORMATS,
+        if (mounted) setProgress(0.1);
+
+        // Load FFmpeg.wasm from public CDN
+        const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
+        await ffmpeg.load({
+          coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+          wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
         });
 
-        const output = new Output({
-          format: new Mp4OutputFormat(),
-          target: new BufferTarget(),
+        if (mounted) setProgress(0.3);
+
+        // Fetch and write input file
+        await ffmpeg.writeFile('input.mp4', await fetchFile(sourceUrl));
+        if (mounted) setProgress(0.5);
+
+        // Track progress (scale 50% to 90%)
+        ffmpeg.on('progress', ({ progress: p }) => {
+          if (mounted) setProgress(0.5 + p * 0.4);
         });
 
-        // Convert ms to seconds
-        const start = segment.start_ms / 1000;
-        const end = segment.end_ms / 1000;
+        const startS = (segment.start_ms / 1000).toString();
+        const durationS = ((segment.end_ms - segment.start_ms) / 1000).toString();
 
-        conversionInstance = await Conversion.init({
-          input,
-          output,
-          trim: { start, end },
-          audio: segment.muted ? { discard: true } : {},
-        });
+        // Build command args
+        const args = [
+          '-ss', startS,
+          '-i', 'input.mp4',
+          '-t', durationS,
+          '-c:v', 'libx264',
+          '-preset', 'ultrafast'
+        ];
 
-        if (!conversionInstance.isValid) {
-          throw new Error('Invalid conversion configuration: ' + JSON.stringify(conversionInstance.discardedTracks));
-        }
-
-        conversionInstance.onProgress = (p) => {
-          if (mounted) setProgress(p);
-        };
-
-        // Add timeout to prevent hanging (60s)
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Conversion timed out')), 60000)
-        );
-
-        await Promise.race([
-          conversionInstance.execute(),
-          timeoutPromise
-        ]);
-
-        if (output.target.buffer && output.target.buffer.byteLength > 0) {
-          const blob = new Blob([output.target.buffer], { type: 'video/mp4' });
-          const url = URL.createObjectURL(blob);
-          setVideoUrl(url);
+        if (segment.muted) {
+          args.push('-an');
         } else {
-          setError('Conversion produced empty result');
+          args.push('-c:a', 'aac');
         }
+
+        args.push('output.mp4');
+
+        await ffmpeg.exec(args);
+        if (mounted) setProgress(0.95);
+
+        const data = await ffmpeg.readFile('output.mp4');
+        const blob = new Blob([data as any], { type: 'video/mp4' });
+        const url = URL.createObjectURL(blob);
+
+        if (mounted) {
+          setVideoUrl(url);
+          setProgress(1);
+        }
+
         completedRef.current = true;
         processingRef.current = false;
         setTimeout(onComplete, 0);
       } catch (err: unknown) {
-        console.error('Conversion failed:', err);
+        console.error('Segment processing failed:', err);
         if (mounted) {
           setError(err instanceof Error ? err.message : 'Unknown error');
         }
-        // Even on error, we should move to next
         completedRef.current = true;
         processingRef.current = false;
         setTimeout(onComplete, 0);
-      } finally {
-        processingRef.current = false;
       }
     };
 
@@ -105,56 +100,48 @@ export function SegmentPlayer({ segment, sourceUrl, canProcess, onComplete }: Se
 
     return () => {
       mounted = false;
-      if (conversionInstance) {
-        conversionInstance.cancel().catch(() => {});
-      }
-      if (videoUrl) {
-        URL.revokeObjectURL(videoUrl);
-      }
     };
-  }, [segment, sourceUrl, canProcess, onComplete]);
+  }, [canProcess, sourceUrl, segment, onComplete]);
 
   return (
-    <div className="segment-player" style={{ 
-      width: '300px',
-      margin: '0', 
-      border: '1px solid #444', 
-      padding: '10px', 
+    <div style={{
+      width: '260px',
+      padding: '15px',
+      border: '1px solid #444',
       borderRadius: '8px',
+      backgroundColor: '#1a1a1a',
+      color: '#fff',
       display: 'flex',
       flexDirection: 'column',
-      backgroundColor: '#252526', // Dark background
-      color: '#fff'
+      gap: '10px'
     }}>
-      <h3 style={{ fontSize: '1.1em', margin: '0 0 5px 0', color: '#fff' }}>{segment.purpose}</h3>
-      <p style={{ fontSize: '0.9em', margin: '0 0 10px 0', height: '40px', overflow: 'hidden', textOverflow: 'ellipsis', color: '#ccc' }}>{segment.summary}</p>
-      <p style={{ fontSize: '0.7em', color: '#aaa', margin: '0 0 10px 0' }}>
-        Time: {segment.timecode} | Muted: {segment.muted ? 'Yes' : 'No'}
-      </p>
+      <div style={{ fontSize: '0.85em', fontFamily: 'monospace' }}>
+        <div>Scene: {segment.scene_id}</div>
+        <div>Range: {segment.start_ms}ms - {segment.end_ms}ms</div>
+        <div>Status: {segment.muted ? '🔇 Muted' : '🔊 Audio'}</div>
+      </div>
 
-      <div style={{ marginTop: 'auto', minHeight: '169px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#000', borderRadius: '4px', overflow: 'hidden' }}>
-        {error ? (
-          <div style={{ color: '#ff5252', padding: '10px', fontSize: '0.8em' }}>Error: {error}</div>
-        ) : videoUrl ? (
-          <video src={videoUrl} controls width="100%" style={{ maxHeight: '100%' }} />
-        ) : canProcess || processingRef.current ? (
-          <div style={{ textAlign: 'center' }}>
-            <p style={{ fontSize: '0.8em', color: '#ccc' }}>Processing...</p>
-            <div style={{ width: '150px', height: '8px', backgroundColor: '#444', borderRadius: '4px', overflow: 'hidden' }}>
-              <div 
-                style={{ 
-                  width: `${progress * 100}%`, 
-                  height: '100%', 
-                  backgroundColor: '#4CAF50', 
-                  transition: 'width 0.3s ease' 
-                }} 
-              />
-            </div>
-            <p>{Math.round(progress * 100)}%</p>
-          </div>
+      <div style={{
+        width: '100%',
+        height: '140px',
+        backgroundColor: '#000',
+        borderRadius: '4px',
+        overflow: 'hidden',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'relative'
+      }}>
+        {videoUrl ? (
+          <video
+            src={videoUrl}
+            controls
+            playsInline
+            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+          />
         ) : (
-          <div style={{ textAlign: 'center', color: '#666' }}>
-            <p>Waiting in queue...</p>
+          <div style={{ color: error ? '#f44336' : '#888', fontSize: '0.85em', textAlign: 'center', padding: '10px' }}>
+            {error ? `Error: ${error}` : canProcess ? `Processing: ${Math.round(progress * 100)}%` : 'Waiting in Queue...'}
           </div>
         )}
       </div>

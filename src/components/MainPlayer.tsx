@@ -1,105 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
-import {
-  Input,
-  Output,
-  UrlSource,
-  BufferTarget,
-  Mp4OutputFormat,
-  VideoSampleSink,
-  AudioSampleSink,
-  VideoSampleSource,
-  AudioSampleSource,
-  ALL_FORMATS,
-  AudioSample,
-  VideoSample,
-} from 'mediabunny';
+import { FFmpeg } from '@ffmpeg/ffmpeg';
+import { fetchFile, toBlobURL } from '@ffmpeg/util';
 import type { Segment, SourceFile } from '../types';
 
 interface MainPlayerProps {
   segments: Segment[];
   sourceFiles: SourceFile[];
 }
-
-// Helper to resample audio
-const resampleAudio = (sample: AudioSample, targetRate: number): AudioSample => {
-  if (sample.sampleRate === targetRate) return sample;
-
-  const numberOfChannels = sample.numberOfChannels;
-  const frameCount = sample.numberOfFrames;
-  
-  // Create buffer to hold the data from the sample
-  // We enforce 'f32' (interleaved 32-bit float) for simplicity in resampling
-  const oldDataBuffer = new Float32Array(frameCount * numberOfChannels);
-  
-  sample.copyTo(oldDataBuffer, {
-      planeIndex: 0,
-      format: 'f32', 
-  });
-
-  const ratio = sample.sampleRate / targetRate;
-  const newFrameCount = Math.floor(frameCount / ratio);
-  const newData = new Float32Array(newFrameCount * numberOfChannels);
-
-  for (let i = 0; i < newFrameCount; i++) {
-    const center = i * ratio;
-    const index1 = Math.floor(center);
-    const index2 = Math.min(index1 + 1, frameCount - 1);
-    const weight = center - index1;
-    
-    for (let ch = 0; ch < numberOfChannels; ch++) {
-       const val1 = oldDataBuffer[index1 * numberOfChannels + ch];
-       const val2 = oldDataBuffer[index2 * numberOfChannels + ch];
-       newData[i * numberOfChannels + ch] = val1 * (1 - weight) + val2 * weight;
-    }
-  }
-
-  return new AudioSample({
-    data: newData,
-    format: 'f32',
-    numberOfChannels: numberOfChannels,
-    sampleRate: targetRate,
-    timestamp: sample.timestamp,
-  });
-};
-
-// Helper to generate silence
-const generateSilence = async (
-  audioSource: AudioSampleSource,
-  duration: number,
-  startTime: number,
-  sampleRate: number = 48000,
-  numberOfChannels: number = 2
-) => {
-  const format = 'f32'; // Interleaved float
-  // Process in chunks of 100ms to avoid memory spikes
-  const chunkDuration = 0.1;
-  let currentTime = startTime;
-  const endTime = startTime + duration;
-
-  while (currentTime < endTime) {
-    const nextTime = Math.min(currentTime + chunkDuration, endTime);
-    const currentChunkDuration = nextTime - currentTime;
-    const frameCount = Math.floor(currentChunkDuration * sampleRate);
-    
-    if (frameCount === 0) break;
-
-    const data = new Float32Array(frameCount * numberOfChannels); // Zeros
-
-    const sample = new AudioSample({
-      data,
-      format,
-      numberOfChannels,
-      sampleRate,
-      timestamp: currentTime,
-      // numberOfFrames is inferred from data length / channels
-    });
-
-    await audioSource.add(sample);
-    sample.close();
-    
-    currentTime = nextTime;
-  }
-};
 
 export function MainPlayer({ segments, sourceFiles }: MainPlayerProps) {
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
@@ -113,318 +20,181 @@ export function MainPlayer({ segments, sourceFiles }: MainPlayerProps) {
     processingRef.current = true;
 
     const stitchVideos = async () => {
+      const ffmpeg = new FFmpeg();
       try {
         setError(null);
-        setStatus('Initializing Stitcher...');
-        
-        // 1. Setup Output
-        const output = new Output({
-          format: new Mp4OutputFormat(),
-          target: new BufferTarget(),
+        setStatus('Initializing FFmpeg...');
+        setProgress(0.05);
+
+        // Load FFmpeg.wasm from public CDN
+        const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
+        await ffmpeg.load({
+          coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+          wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
         });
 
-        // 2. Setup Sources (Encoders)
-        const videoSource = new VideoSampleSource({
-          codec: 'avc', // H.264
-          bitrate: 6_000_000,
-          keyFrameInterval: 2,
-        });
+        setStatus('Downloading source segments...');
+        setProgress(0.15);
 
-        // Delay audio source creation until we know the sample rate
-        let audioSource: AudioSampleSource | null = null;
-        
-        // We need to add tracks before start.
-        // But we don't know the sample rate yet.
-        // However, we can assume 48000 or 44100.
-        // Better approach: Scan first segment to get sample rate.
-        
-        let sampleRate = 48000; // Default
-        let numberOfChannels = 2;
+        // Find and download unique source files
+        const uniqueSources = Array.from(new Set(segments.map(s => s.source_id)));
+        const fileMap: Record<string, string> = {}; // source_id -> virtual filename
 
-        // Determine target video dimensions (smallest of all sources)
-        // This ensures we can crop larger videos to fit without upscaling/letterboxing issues
-        let targetWidth = Infinity;
-        let targetHeight = Infinity;
-        
-        // Check all segments to find minimum dimensions
-        segments.forEach(seg => {
-            const sf = sourceFiles.find(s => s.source_id === seg.source_id);
-            if (sf) {
-                targetWidth = Math.min(targetWidth, sf.dimension.width);
-                targetHeight = Math.min(targetHeight, sf.dimension.height);
-            }
-        });
-        
-        // Fallback if no dimensions found (unlikely)
-        if (targetWidth === Infinity) targetWidth = 1920;
-        if (targetHeight === Infinity) targetHeight = 1080;
-
-        console.log(`Target Video Dimensions: ${targetWidth}x${targetHeight}`);
-        
-        // Cache inputs to avoid re-opening files
-        const inputCache = new Map<number, Input>();
-        const getInput = (sourceId: number, url: string) => {
-            if (!inputCache.has(sourceId)) {
-                inputCache.set(sourceId, new Input({ source: new UrlSource(url), formats: ALL_FORMATS }));
-            }
-            return inputCache.get(sourceId)!;
-        };
-
-        // Probe first unmuted segment for audio info
-        for (const segment of segments) {
-          if (!segment.muted) {
-            const sourceFile = sourceFiles.find(s => s.source_id === segment.source_id);
-            if (sourceFile) {
-              const probeInput = getInput(sourceFile.source_id, sourceFile.url);
-              const track = await probeInput.getPrimaryAudioTrack();
-              if (track) {
-                // Cap sample rate at 48kHz for browser compatibility
-                // Many browsers don't support AAC encoding at 96kHz
-                sampleRate = track.sampleRate > 48000 ? 48000 : track.sampleRate;
-                numberOfChannels = track.numberOfChannels;
-                // Don't dispose probeInput as it is cached
-                break;
-              }
-            }
+        for (let i = 0; i < uniqueSources.length; i++) {
+          const sourceId = uniqueSources[i];
+          const sourceFile = sourceFiles.find(sf => sf.source_id === sourceId);
+          if (!sourceFile) {
+            throw new Error(`Source file metadata not found for ID: ${sourceId}`);
           }
+
+          const filename = `input_${i}.mp4`;
+          fileMap[sourceId] = filename;
+
+          setStatus(`Downloading source ${i + 1}/${uniqueSources.length}...`);
+          setProgress(0.15 + (i / uniqueSources.length) * 0.15); // Scale up to 30%
+
+          await ffmpeg.writeFile(filename, await fetchFile(sourceFile.url));
         }
 
-        console.log(`Initializing Audio with SampleRate: ${sampleRate}, Channels: ${numberOfChannels}`);
+        setStatus('Compiling Stitching Pipeline...');
+        setProgress(0.35);
 
-        const audioSourceInstance = new AudioSampleSource({
-          codec: 'aac',
-          bitrate: 128_000,
-        });
-        
-        audioSource = audioSourceInstance;
-        output.addVideoTrack(videoSource, { frameRate: 30 });
-        output.addAudioTrack(audioSource);
+        // Build FFmpeg Filter Complex to Trim, Normalize (1280x720, 48000Hz), and Concat
+        let filterComplex = '';
+        let concatInputs = '';
+        const args: string[] = [];
 
-        await output.start();
+        // Add all inputs to the command args in order of their occurrence in unique list
+        for (let i = 0; i < uniqueSources.length; i++) {
+          args.push('-i', `input_${i}.mp4`);
+        }
 
-        let currentVideoTimestamp = 0;
-        const totalDuration = segments.reduce((acc, s) => acc + s.duration_sec, 0);
-        let processedDuration = 0;
+        segments.forEach((segment, idx) => {
+          // Find which input index corresponds to this segment's source_id
+          const inputIdx = uniqueSources.indexOf(segment.source_id);
+          const startS = segment.start_ms / 1000;
+          const endS = segment.end_ms / 1000;
 
-        // 3. Process Each Segment
-        for (let i = 0; i < segments.length; i++) {
-          const segment = segments[i];
-          const sourceFile = sourceFiles.find(s => s.source_id === segment.source_id);
-          if (!sourceFile) throw new Error(`Source not found for segment ${segment.scene_id}`);
+          // Video Filter: Trim, Set PTS, and Scale/Crop to 1280x720 (Center-Crop)
+          filterComplex += `[${inputIdx}:v]trim=start=${startS}:end=${endS},setpts=PTS-STARTPTS,scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720[v${idx}];`;
 
-          setStatus(`Processing Segment ${i + 1}/${segments.length}: ${segment.purpose}`);
-          
-          const startSec = segment.start_ms / 1000;
-          const endSec = segment.end_ms / 1000;
-          const duration = endSec - startSec;
-
-          const input = getInput(sourceFile.source_id, sourceFile.url);
-
-          // Debugging: Check if segment is within source duration
-          const sourceDuration = await input.computeDuration();
-          if (startSec > sourceDuration) {
-             console.error(`Segment ${i} (${segment.purpose}) start time (${startSec}s) is AFTER source file duration (${sourceDuration}s). Skipping this segment.`);
-             // Don't dispose cached input
-             continue;
-          } else if (endSec > sourceDuration) {
-             console.warn(`Segment ${i} (${segment.purpose}) end time (${endSec}s) exceeds source file duration (${sourceDuration}s). Content will be truncated.`);
-          }
-
-          // 3a. Process Video
-          const videoTrack = await input.getPrimaryVideoTrack();
-          if (videoTrack && await videoTrack.canDecode()) {
-            const videoSink = new VideoSampleSink(videoTrack);
-            const videoSamples = videoSink.samples(startSec, endSec);
-            
-            let firstSampleTimestamp = -1;
-
-            for await (const sample of videoSamples) {
-              if (sample.timestamp >= endSec) {
-                sample.close();
-                continue;
-              }
-              if (sample.timestamp < startSec) {
-                 sample.close();
-                 continue;
-              }
-
-              if (firstSampleTimestamp === -1) firstSampleTimestamp = sample.timestamp;
-
-              const relativeTime = sample.timestamp - firstSampleTimestamp;
-              const newTimestamp = currentVideoTimestamp + relativeTime;
-              
-              // Handle dimension mismatch (crop to target size)
-              let sampleToAdd = sample;
-              
-              if (sample.codedWidth !== targetWidth || sample.codedHeight !== targetHeight) {
-                  // Calculate center crop
-                  const sx = Math.max(0, (sample.codedWidth - targetWidth) / 2);
-                  const sy = Math.max(0, (sample.codedHeight - targetHeight) / 2);
-                  
-                  // Use createImageBitmap for efficient cropping on GPU
-                  const originalFrame = sample.toVideoFrame();
-                  const bitmap = await createImageBitmap(originalFrame, sx, sy, targetWidth, targetHeight);
-                  
-                  // Create new VideoFrame from bitmap
-                  const croppedFrame = new VideoFrame(bitmap, { 
-                      timestamp: newTimestamp * 1000000, 
-                      duration: sample.duration * 1000000 
-                  });
-                  
-                  // Create new sample from cropped frame
-                  sampleToAdd = new VideoSample(croppedFrame);
-                  
-                  // Cleanup intermediates
-                  bitmap.close();
-                  originalFrame.close();
-              } else {
-                  // No cropping needed, just update timestamp
-                  sample.setTimestamp(newTimestamp);
-              }
-              
-              await videoSource.add(sampleToAdd);
-              
-              if (sampleToAdd !== sample) {
-                  sampleToAdd.close();
-              }
-              sample.close();
-            }
-          }
-
-          // 3b. Process Audio
+          // Audio Filter: Trim, Set PTS, Resample to 48000Hz, and Mute if necessary
           if (segment.muted) {
-            // Generate silence matching the detected sample rate
-            await generateSilence(audioSource!, duration, currentVideoTimestamp, sampleRate, numberOfChannels);
+            filterComplex += `[${inputIdx}:a]atrim=start=${startS}:end=${endS},asetpts=PTS-STARTPTS,volume=0,aresample=48000[a${idx}];`;
           } else {
-            const audioTrack = await input.getPrimaryAudioTrack();
-            if (audioTrack && await audioTrack.canDecode()) {
-              // Check for sample rate mismatch
-              if (audioTrack.sampleRate !== sampleRate) {
-                 console.log(`Resampling audio for segment ${i} from ${audioTrack.sampleRate} to ${sampleRate}.`);
-              }
-
-              const audioSink = new AudioSampleSink(audioTrack);
-              const audioSamples = audioSink.samples(startSec, endSec);
-              
-              let firstAudioTimestamp = -1;
-
-              for await (const sample of audioSamples) {
-                if (sample.timestamp >= endSec) {
-                    sample.close();
-                    continue;
-                }
-                
-                // Resample if necessary (e.g. 96k -> 48k)
-                let sampleToProcess = sample;
-                if (sample.sampleRate !== sampleRate) {
-                    sampleToProcess = resampleAudio(sample, sampleRate);
-                }
-
-                // Audio sink might yield samples starting slightly before `startSec`
-                // We should probably filter or clip, but for simplicity, we just offset.
-                // Ideally we should be more precise, but timestamp shifting usually works well enough.
-                
-                if (firstAudioTimestamp === -1) firstAudioTimestamp = sampleToProcess.timestamp;
-
-                const relativeTime = sampleToProcess.timestamp - firstAudioTimestamp;
-                const newTimestamp = currentVideoTimestamp + relativeTime;
-
-                sampleToProcess.setTimestamp(newTimestamp);
-                await audioSource!.add(sampleToProcess);
-                
-                if (sampleToProcess !== sample) {
-                    sampleToProcess.close();
-                }
-                sample.close();
-              }
-            }
+            filterComplex += `[${inputIdx}:a]atrim=start=${startS}:end=${endS},asetpts=PTS-STARTPTS,aresample=48000[a${idx}];`;
           }
 
-          currentVideoTimestamp += duration;
-          processedDuration += duration;
-          setProgress(Math.min(0.99, processedDuration / totalDuration));
-          
-          // Do not dispose input here as it is cached
-        }
-        
-        // Clean up cached inputs
-        for (const input of inputCache.values()) {
-            input.dispose();
-        }
-        inputCache.clear();
+          concatInputs += `[v${idx}][a${idx}]`;
+        });
 
-        setStatus('Finalizing...');
-        await output.finalize();
-        
-        if (output.target.buffer) {
-          const blob = new Blob([output.target.buffer], { type: 'video/mp4' });
-          const url = URL.createObjectURL(blob);
-          setVideoUrl(url);
-          setStatus('Ready');
-          setProgress(1);
-        } else {
-          throw new Error('No output buffer created');
-        }
+        // Add concat stream mapping
+        filterComplex += `${concatInputs}concat=n=${segments.length}:v=1:a=1[outv][outa]`;
 
+        // Assemble all args
+        args.push(
+          '-filter_complex', filterComplex,
+          '-map', '[outv]',
+          '-map', '[outa]',
+          '-c:v', 'libx264',
+          '-preset', 'ultrafast',
+          '-c:a', 'aac',
+          'output.mp4'
+        );
+
+        setStatus('Rendering Stitched Video...');
+        setProgress(0.40);
+
+        // Track progress (scale 40% to 95%)
+        ffmpeg.on('progress', ({ progress: p }) => {
+          setProgress(0.40 + p * 0.55);
+        });
+
+        await ffmpeg.exec(args);
+
+        setStatus('Generating Final MP4 Buffer...');
+        setProgress(0.96);
+
+        const data = await ffmpeg.readFile('output.mp4');
+        const blob = new Blob([data as any], { type: 'video/mp4' });
+        const url = URL.createObjectURL(blob);
+
+        setVideoUrl(url);
+        setStatus('Stitching Complete!');
+        setProgress(1);
       } catch (err: unknown) {
-        console.error(err);
+        console.error('Stitching failed:', err);
         setError(err instanceof Error ? err.message : 'Unknown error');
-        setStatus('Error');
+        setStatus('Stitching Failed');
       } finally {
-        // processingRef.current = false; 
+        processingRef.current = false;
       }
     };
 
     stitchVideos();
-
-    return () => {
-      if (videoUrl) URL.revokeObjectURL(videoUrl);
-    };
-  }, []); // Empty deps, run once on mount
+  }, [segments, sourceFiles]);
 
   return (
-    <div style={{ 
-      width: '100%', 
-      maxWidth: '800px', 
-      margin: '0 auto 40px auto', 
-      padding: '20px', 
-      border: '2px solid #333', 
-      borderRadius: '12px',
-      backgroundColor: '#222',
+    <div style={{
+      padding: '20px',
+      border: '1px solid #444',
+      borderRadius: '8px',
+      backgroundColor: '#1a1a1a',
       color: '#fff',
-      textAlign: 'center'
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '20px',
+      height: '100%',
+      boxSizing: 'border-box'
     }}>
-      <h2 style={{ marginTop: 0 }}>Main Video (Stitched)</h2>
-      
-      <div style={{ 
-        width: '100%', 
-        aspectRatio: '16/9', 
-        backgroundColor: '#000', 
-        display: 'flex', 
-        alignItems: 'center', 
+      <h2 style={{ margin: 0, fontSize: '1.2em', color: '#10B981' }}>Stitched Output</h2>
+
+      <div style={{
+        width: '100%',
+        height: '420px',
+        backgroundColor: '#000',
+        borderRadius: '6px',
+        overflow: 'hidden',
+        display: 'flex',
+        alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: '10px'
+        position: 'relative',
+        border: '1px solid #333'
       }}>
         {videoUrl ? (
-          <video src={videoUrl} controls style={{ width: '100%', height: '100%' }} />
+          <video
+            src={videoUrl}
+            controls
+            playsInline
+            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+          />
         ) : (
-          <div style={{ width: '80%' }}>
-            <p style={{ marginBottom: '10px' }}>{status}</p>
-            <div style={{ 
-              width: '100%', 
-              height: '10px', 
-              backgroundColor: '#444', 
-              borderRadius: '5px',
-              overflow: 'hidden' 
-            }}>
-              <div style={{ 
-                width: `${progress * 100}%`, 
-                height: '100%', 
-                backgroundColor: '#2196F3',
-                transition: 'width 0.3s ease'
-              }} />
-            </div>
-            {error && <p style={{ color: '#ff5252', marginTop: '10px' }}>{error}</p>}
+          <div style={{ color: error ? '#f44336' : '#888', textAlign: 'center', padding: '20px' }}>
+            {error ? (
+              <div>
+                <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>Rendering Error</div>
+                <div style={{ fontSize: '0.85em', fontFamily: 'monospace' }}>{error}</div>
+              </div>
+            ) : (
+              <div>
+                <div style={{ marginBottom: '12px', fontWeight: 'bold' }}>{status}</div>
+                <div style={{
+                  width: '200px',
+                  height: '6px',
+                  backgroundColor: '#333',
+                  borderRadius: '3px',
+                  margin: '0 auto',
+                  overflow: 'hidden'
+                }}>
+                  <div style={{
+                    width: `${progress * 100}%`,
+                    height: '100%',
+                    backgroundColor: '#10B981',
+                    transition: 'width 0.3s ease-i-out'
+                  }} />
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
