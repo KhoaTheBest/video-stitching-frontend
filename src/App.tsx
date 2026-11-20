@@ -1,6 +1,5 @@
 import { useState, useRef } from 'react';
 import Editor, { type OnMount } from '@monaco-editor/react';
-import './App.css';
 import videoCutdownResults from './data/video_cutdown_results.json';
 import { SegmentPlayer } from './components/SegmentPlayer';
 import { MainPlayer } from './components/MainPlayer';

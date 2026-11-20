@@ -12,12 +12,17 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@astryxdesign/core": "0.7.16",
+    "@astryxdesign/theme-neutral": "0.7.16",
+    "@heroicons/react": "2.2.0",
     "@monaco-editor/react": "^4.7.0",
+    "@stylexjs/stylex": "0.19.1",
     "mediabunny": "1.65.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
   "devDependencies": {
+    "@astryxdesign/cli": "0.7.16",
     "@eslint/js": "^9.39.1",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.5",
