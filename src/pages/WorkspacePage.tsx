@@ -9,6 +9,7 @@ import { Grid } from '@astryxdesign/core/Grid';
 import { useMediaQuery } from '@astryxdesign/core/hooks';
 import { Icon } from '@astryxdesign/core/Icon';
 import { HStack, Layout, LayoutContent, LayoutPanel, VStack } from '@astryxdesign/core/Layout';
+import { Link } from '@astryxdesign/core/Link';
 import { List, ListItem } from '@astryxdesign/core/List';
 import { Section } from '@astryxdesign/core/Section';
 import { Selector } from '@astryxdesign/core/Selector';
@@ -24,6 +25,7 @@ import { SegmentPreview } from '../components/SegmentPreview';
 import { parseProject, planStitch, type StitchPlan } from '../engine/plan';
 import { formatTime } from '../lib/format';
 import { readStored, writeStored } from '../lib/storage';
+import { usePageMeta } from '../router';
 import type { SampleData, VideoCutdownResult } from '../types';
 
 const JsonEditor = lazy(() => import('../components/JsonEditor'));
@@ -52,6 +54,7 @@ export function WorkspacePage() {
   const [tab, setTab] = useState<PanelTab>('segments');
   const isMobile = useMediaQuery('(max-width: 768px)');
   const entitlements = useEntitlements();
+  usePageMeta(`Editor · ${APP_NAME}`, 'Trim and stitch video segments in your browser.');
   const [dialog, setDialog] = useState<ProDialogMode | null>(null);
 
   const { plan, planError } = useMemo((): { plan: StitchPlan | null; planError: string | null } => {
@@ -111,7 +114,7 @@ export function WorkspacePage() {
         <Section variant="transparent" padding={4}>
           <VStack gap={3}>
             <HStack gap={2} vAlign="center" hAlign="between">
-              <Text type="label" color="secondary">{APP_NAME}</Text>
+              <Link href="/">{APP_NAME}</Link>
               <Button
                 label={isPro ? 'Pro' : 'Enter licence key'}
                 size="sm"
