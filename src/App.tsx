@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useRef } from 'react';
 import Editor, { type OnMount } from '@monaco-editor/react';
 import './App.css';
 import videoCutdownResults from './data/video_cutdown_results.json';
@@ -27,8 +27,6 @@ function App() {
   // State to force remount/reset of players
   const [resetKey, setResetKey] = useState<number>(0);
 
-  const [processingIndex, setProcessingIndex] = useState(0);
-
   const editorRef = useRef<Parameters<OnMount>[0] | null>(null);
 
   const handleEditorDidMount: OnMount = (editor) => {
@@ -47,7 +45,6 @@ function App() {
       // Basic validation could go here
       setActiveData(parsed);
       setResetKey(prev => prev + 1);
-      setProcessingIndex(0); // Reset queue
     } catch (e) {
       alert('Invalid JSON: ' + (e as Error).message);
     }
@@ -61,18 +58,13 @@ function App() {
     setActiveData(newData);
     setJsonInput(JSON.stringify(newData, null, 2));
     setResetKey(prev => prev + 1);
-    setProcessingIndex(0);
   };
-
-  const handleSegmentComplete = useCallback(() => {
-    setProcessingIndex(prev => prev + 1);
-  }, []);
 
   const { segments, source_files } = activeData.video_cutdown_result;
 
   return (
     <div className="App" style={{ padding: '20px', maxWidth: '1400px', margin: '0 auto' }}>
-      <h1 style={{ textAlign: 'center', marginBottom: '30px' }}>MediaBunny Video Segments</h1>
+      <h1 style={{ textAlign: 'center', marginBottom: '30px' }}>Video Segments</h1>
       
       {/* Top Section: Split View */}
       <div style={{ display: 'flex', gap: '20px', marginBottom: '40px', flexWrap: 'wrap' }}>
@@ -164,8 +156,7 @@ function App() {
         <div style={{ flex: '1', minWidth: '500px' }}>
           <MainPlayer 
             key={`main-${resetKey}`} 
-            segments={segments} 
-            sourceFiles={source_files} 
+            project={activeData.video_cutdown_result}
           />
         </div>
 
@@ -181,7 +172,7 @@ function App() {
         // backgroundColor: '#f9f9f9', // Removed to respect dark theme
         // borderRadius: '12px'
       }}>
-        {segments.map((segment, index) => {
+        {segments.map((segment) => {
           const source = source_files.find(s => s.source_id === segment.source_id);
           
           if (!source) {
@@ -197,8 +188,6 @@ function App() {
               key={`seg-${resetKey}-${segment.scene_id}`} 
               segment={segment} 
               sourceUrl={source.url}
-              canProcess={index === processingIndex}
-              onComplete={handleSegmentComplete}
             />
           );
         })}

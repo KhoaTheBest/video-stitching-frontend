@@ -8,13 +8,12 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest run --passWithNoTests",
+    "test": "vitest run",
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@ffmpeg/ffmpeg": "^0.12.15",
-    "@ffmpeg/util": "^0.12.2",
     "@monaco-editor/react": "^4.7.0",
+    "mediabunny": "1.65.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
