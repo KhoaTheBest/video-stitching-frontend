@@ -2,6 +2,29 @@
 
 Repo state audited: `main` at aefb2d6. Live site: https://stitching.khoalt.dev
 
+## Status (branch `feat/monetization-astryx`)
+
+Decisions confirmed: codec option 1, freemium with licence keys and no accounts, Lemon Squeezy, the free limits in 2.2, and Vitest plus Astryx as new dependencies.
+
+| Plan item | Status |
+|---|---|
+| 1. Lint fixes, Vitest, small bug fixes | Done |
+| 2. Codec/licence decision | Done: FFmpeg.wasm removed entirely, export uses Mediabunny (MPL-2.0) and WebCodecs |
+| 3. Astryx migration, Download button | Done |
+| 4. Self-host the FFmpeg core | No longer needed: there is no FFmpeg core |
+| 5. Entitlements, limits, watermark, paywall | Done |
+| 6. Pricing and landing pages, SEO | Done (no pre-rendering yet) |
+| 7. Licence validation and checkout links | Done in code; accounts and env vars are on you (see the PR checklist) |
+| 8. Legal drafts | Done as drafts with placeholders; they need review |
+| 9. Bring your own files | Done, plus in-panel segment editing |
+| 10. Accessibility, responsive layout, error boundary, empty and error states | Mostly done through Astryx components; not checked with a screen reader |
+| 11. Analytics | Not done: waiting for your choice of tool |
+| 12. README, TASK_SUMMARY, licence report, npm audit | Done; repo `LICENSE` is waiting for your choice |
+
+Correction to 2.7, option 1: keeping the FFmpeg core "only for trimming" would not have avoided the GPL. That build is GPL as a whole, whichever codec is called. So FFmpeg was removed completely instead.
+
+Not verified: the browser end-to-end export. This machine can't start a headless browser (system libraries are missing and there is no sudo), so the export pipeline is covered by unit tests, type checks and a render smoke test only.
+
 ## 1. Current state (baseline, before any change)
 
 | Check | Result |
