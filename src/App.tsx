@@ -29,7 +29,7 @@ function App() {
 
   const [processingIndex, setProcessingIndex] = useState(0);
 
-  const editorRef = useRef<any>(null);
+  const editorRef = useRef<Parameters<OnMount>[0] | null>(null);
 
   const handleEditorDidMount: OnMount = (editor) => {
     editorRef.current = editor;
@@ -37,7 +37,7 @@ function App() {
 
   const handleFormat = () => {
     if (editorRef.current) {
-      editorRef.current.getAction('editor.action.formatDocument').run();
+      editorRef.current.getAction('editor.action.formatDocument')?.run();
     }
   };
 

@@ -116,7 +116,7 @@ export function MainPlayer({ segments, sourceFiles }: MainPlayerProps) {
         setProgress(0.96);
 
         const data = await ffmpeg.readFile('output.mp4');
-        const blob = new Blob([data as any], { type: 'video/mp4' });
+        const blob = new Blob([data as BlobPart], { type: 'video/mp4' });
         const url = URL.createObjectURL(blob);
 
         setVideoUrl(url);

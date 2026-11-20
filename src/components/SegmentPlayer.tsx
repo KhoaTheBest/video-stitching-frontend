@@ -74,7 +74,7 @@ export function SegmentPlayer({ segment, sourceUrl, canProcess, onComplete }: Se
         if (mounted) setProgress(0.95);
 
         const data = await ffmpeg.readFile('output.mp4');
-        const blob = new Blob([data as any], { type: 'video/mp4' });
+        const blob = new Blob([data as BlobPart], { type: 'video/mp4' });
         const url = URL.createObjectURL(blob);
 
         if (mounted) {
