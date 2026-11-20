@@ -11,3 +11,7 @@ it('renders the workspace with the first sample project', () => {
   expect(html).toContain('iPhone 15 Portrait Mode Ad Cutdown');
   expect(html).toContain('Export video');
 });
+
+it('shows the free plan limits when no licence is active', () => {
+  expect(render(<WorkspacePage />)).toContain('Free plan: up to 5 segments');
+});
