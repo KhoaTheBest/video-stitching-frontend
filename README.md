@@ -47,6 +47,7 @@ Licence activation calls `/api/license`, which only exists on Cloudflare Pages. 
 All variables are documented in `.env.example`.
 
 - `VITE_*` values are public and compiled into the bundle: display prices, Lemon Squeezy checkout links, the support email. A paid plan without a checkout link shows "Coming soon".
+- `VITE_CF_ANALYTICS_TOKEN` turns on Cloudflare Web Analytics (cookieless page views). Empty means no analytics, and the privacy page says so.
 - `LEMONSQUEEZY_STORE_ID` and `LEMONSQUEEZY_PRODUCT_IDS` are set in the Cloudflare Pages project. The licence function rejects keys from any other store or product. The Lemon Squeezy License API needs no API key.
 
 Plan limits and the product name live in `src/config/plans.ts`.

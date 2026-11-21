@@ -8,4 +8,5 @@ interface ImportMetaEnv {
   readonly VITE_LS_CHECKOUT_YEARLY?: string;
   readonly VITE_LS_CHECKOUT_LIFETIME?: string;
   readonly VITE_SUPPORT_EMAIL?: string;
+  readonly VITE_CF_ANALYTICS_TOKEN?: string;
 }

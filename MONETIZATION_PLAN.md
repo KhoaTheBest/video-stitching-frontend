@@ -18,7 +18,7 @@ Decisions confirmed: codec option 1, freemium with licence keys and no accounts,
 | 8. Legal drafts | Done as drafts with placeholders; they need review |
 | 9. Bring your own files | Done, plus in-panel segment editing |
 | 10. Accessibility, responsive layout, error boundary, empty and error states | Mostly done through Astryx components; not checked with a screen reader |
-| 11. Analytics | Not done: waiting for your choice of tool |
+| 11. Analytics | Done: Cloudflare Web Analytics (cookieless), on only when `VITE_CF_ANALYTICS_TOKEN` is set. Page views only: it has no custom events, so funnel events (export, paywall, checkout) would need another tool later |
 | 12. README, TASK_SUMMARY, licence report, npm audit | Done; repo `LICENSE` is waiting for your choice |
 
 Correction to 2.7, option 1: keeping the FFmpeg core "only for trimming" would not have avoided the GPL. That build is GPL as a whole, whichever codec is called. So FFmpeg was removed completely instead.

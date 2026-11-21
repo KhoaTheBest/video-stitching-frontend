@@ -5,6 +5,9 @@ import '@astryxdesign/core/astryx.css'
 import { Theme } from '@astryxdesign/core/theme'
 import { themes, defaultThemeSlug } from './astryx-themes'
 import App from './App.tsx'
+import { initAnalytics } from './lib/analytics'
+
+initAnalytics()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

@@ -6,6 +6,7 @@ import { List, ListItem } from '@astryxdesign/core/List';
 import { Heading, Text } from '@astryxdesign/core/Text';
 import { SiteChrome } from '../components/SiteChrome';
 import { APP_NAME, SUPPORT_EMAIL } from '../config/plans';
+import { analyticsEnabled } from '../lib/analytics';
 import { usePageMeta } from '../router';
 import type { LegalSlug } from './legalSlugs';
 
@@ -92,7 +93,13 @@ const PAGES = {
         <H>Local storage and cookies</H>
         <P>
           We use your browser's local storage for your licence and the last opened sample project. We set no
-          tracking or advertising cookies, so no cookie banner is needed. [UPDATE THIS SECTION IF YOU ADD ANALYTICS.]
+          tracking or advertising cookies, so no cookie banner is needed.
+        </P>
+        <H>Analytics</H>
+        <P>
+          {analyticsEnabled
+            ? 'We use Cloudflare Web Analytics to count page views. It sets no cookies, does not use local storage, and does not build profiles of visitors. It records the page, referrer, browser and country, and Cloudflare receives your IP address to do this.'
+            : 'We do not use analytics.'}
         </P>
         <H>Third-party requests</H>
         <P>
