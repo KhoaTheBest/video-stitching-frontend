@@ -1,50 +1,28 @@
-# Task Summary: Video Stitching with MediaBunny
+# Task summary
 
-## Project Overview
-A React application that processes a list of video segments defined in a JSON configuration. It provides:
-1.  **Segment Players**: Individual players for each trimmed video segment.
-2.  **Main Player**: A single video player that stitches (concatenates) all segments into one seamless video.
-3.  **JSON Editor**: A Monaco Editor interface to dynamically modify the segment configuration.
+What the app does and how the pieces fit, for whoever picks this up next. The README covers setup.
 
-## Key Technologies
--   **Vite + React + TypeScript**: Core framework.
--   **MediaBunny**: High-performance browser-side media processing library (wraps WebCodecs).
--   **@monaco-editor/react**: For the configuration editor.
+## Data model
 
-## Architecture & Implementation Details
+A project is a `video_cutdown_result` (see `src/types.ts`): `source_files` (id, URL, dimensions) and an ordered list of `segments` (source id, `start_ms`, `end_ms`, `muted`). The bundled samples in `src/data/video_cutdown_results.json` use this shape, and so does the JSON tab. Videos picked from disk are recorded as `local:<file name>` and kept in memory for the session only.
 
-### 1. SegmentPlayer (`src/components/SegmentPlayer.tsx`)
--   **Purpose**: Plays a single trimmed segment of a video.
--   **Implementation**:
-    -   Uses `MediaBunny.Conversion` to fetch, trim (`trim: { start, end }`), and mute (`audio: { discard: true }`) the source video.
-    -   Outputs to a `BufferTarget` which is converted to a Blob URL for playback in a standard `<video>` tag.
--   **Concurrency Handling**:
-    -   Implemented a **queue system** in `App.tsx` (`processingIndex`) to ensure segments are processed one-by-one.
-    -   Processing all segments simultaneously caused browser resource exhaustion (decoder limits) and network saturation.
+## Export pipeline (`src/engine`)
 
-### 2. MainPlayer (`src/components/MainPlayer.tsx`)
--   **Purpose**: Stitches all segments into one continuous MP4 file.
--   **Implementation**:
-    -   Uses a custom pipeline with `Sinks` and `Sources` (lower-level API) instead of `Conversion`.
-    -   **Pipeline Steps**:
-        1.  Initialize Output (MP4) and Encoders (AVC Video, AAC Audio).
-        2.  **Sample Rate Detection**: Probes the first unmuted segment to detect the audio sample rate (e.g., 44100Hz) to configure the encoder correctly. Mismatched rates caused WebCodecs crashes.
-        3.  **Sequential Processing**: Iterates through segments.
-        4.  **Video**: Decodes frames, filters by timestamp, and re-timestamps them to append to the output timeline.
-        5.  **Audio**:
-            -   If **Muted**: Generates explicit **silence samples** (zero-filled Float32Arrays) matching the target duration and sample rate. This prevents audio gaps which can cause player desync.
-            -   If **Unmuted**: Decodes and re-timestamps original audio.
-    -   **Performance**: Uses WebCodecs for hardware-accelerated encoding.
+1. `parseProject` validates the JSON fields the stitcher needs.
+2. `planStitch` resolves sources, lays segments end to end, picks the output frame and reports limit violations. The frame keeps the first source's aspect ratio, caps the short side by plan, and uses even sizes.
+3. `stitch` (Mediabunny, loaded on first export):
+   - picks the first encodable video codec (`avc`, `vp9`, `av1`, `hevc`) and audio codec (`aac`, `opus`) for MP4
+   - for each segment, decodes frames with `CanvasSink` (`fit: 'cover'` does the scale and centre-crop), draws the watermark on free exports, and adds frames to a `CanvasSource` at their new timestamps
+   - holds the last frame if a segment runs past its source's end
+   - mixes audio in 20-second windows through `OfflineAudioContext` (resampling to 48 kHz stereo), writing exactly the segment's length; muted segments and silent sources get silence
+   - supports `AbortSignal`, progress and non-fatal warnings
 
-### 3. App State (`src/App.tsx`)
--   Manages `activeData` state parsed from the JSON editor.
--   Uses `resetKey` to force-remount players when configuration changes ("Execute" button).
--   Manages the processing queue for `SegmentPlayer`s.
+Segment previews do not use the pipeline: they play the source with a `#t=start,end` media fragment.
 
-## Configuration
--   **Vite Config**: Added `Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Embedder-Policy: require-corp` headers. These are **critical** for `SharedArrayBuffer` support, which is often required by media processing libraries (though MediaBunny core is largely main-thread/worker based, this ensures optimal environment).
+## Plans and licensing
 
-## Usage
-1.  Edit JSON in the left panel.
-2.  Click **Execute** to apply changes and restart processing.
-3.  Monitor progress bars for stitching and individual segment loading.
+`src/config/plans.ts` holds the limits. `useEntitlements` reads the stored licence: Pro needs a server validation within the last 30 days, and the key is re-checked weekly. `functions/api/license.ts` proxies the Lemon Squeezy License API and only accepts this store's product ids.
+
+## History
+
+The first version used Mediabunny's lower-level sinks. A later commit switched to FFmpeg.wasm, which turned out to be a GPL build (x264). This branch returned to Mediabunny and WebCodecs so the product can be sold without GPL obligations.

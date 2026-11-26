@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://stitching.khoalt.dev/sitemap.xml
